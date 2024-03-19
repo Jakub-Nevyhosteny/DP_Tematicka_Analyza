@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 from sklearn.decomposition import LatentDirichletAllocation, TruncatedSVD
 from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
-
 from gensim.models import CoherenceModel
 import gensim.corpora as corpora
 
@@ -14,11 +13,11 @@ if __name__ == '__main__':
     freeze_support()
 
     # PŘÍPRAVA DAT
-    def poemsExtraction2():
+    def poemsExtraction():
         with open("stopwords-cs.txt", "r", encoding="utf-8") as stop_words_file:
             stop_words = stop_words_file.read()
 
-        corpus_folder_path = "datasets/corpusCzechVerse-master/ccv2"
+        corpus_folder_path = "datasets/corpusCzechVerse-master/ccv"
         corpus_files = os.listdir(corpus_folder_path)
 
         poems = []
@@ -39,7 +38,7 @@ if __name__ == '__main__':
                 poems.append(poem)
         return poems
 
-    poems = poemsExtraction2()
+    poems = poemsExtraction()
     print("PŘÍPRAVA DAT: HOTOVO")
 
     # Vytvoření TF-IDF matice pomocí scikit-learn
@@ -175,6 +174,7 @@ if __name__ == '__main__':
         return optimal_num_topics_LDA, optimal_num_topics_LSA, lsi_coh_score
 
     lda_num_topics, lsa_num_topics, lsa_coh_score = calc_topic_coherence_scores()
+    print(lda_num_topics, lsa_num_topics)
     print("NALEZENÍ OPTIMÁLNÍHO POČTU TÉMAT: HOTOVO")
 
 
@@ -202,7 +202,7 @@ if __name__ == '__main__':
 
     alpha, beta, lda_coh_score = calc_alpha_beta_coherence_scores()
     print("NALEZENÍ OPTIMÁLNÍCH HODNOT PARAMETRŮ ALPHA A BETA: HOTOVO")
-    # {'alpha': 0.8, 'beta': 0.9, 'Coherence score:': 0.4136510228899784}
+
 
     # Výsledky
     print("LDA MODEL:")
@@ -235,49 +235,3 @@ if __name__ == '__main__':
 
     except Exception as e:
         print(e)
-
-
-    """
-    # Získání názvů termínů (slov)
-    terms = vectorizer.get_feature_names_out()
-    print("VYTVOŘENÍ SLOVNÍKU: HOTOVO")
-    
-    # Konverze TF-IDF matice do document-term matice
-    document_term_matrix = X.toarray()
-    print("VYTVOŘENÍ DTM: HOTOVO")
-    
-    
-    # Inicializace LDA modelu
-    lda_model_sklearn = LatentDirichletAllocation(n_components=6)
-    lda_topic_matrix_sklearn = lda_model_sklearn.fit_transform(X)
-    
-    # Inicializace LSA modelu
-    lsa_model_sklearn = TruncatedSVD(n_components=6)
-    lsa_topic_matrix_sklearn = lsa_model_sklearn.fit_transform(X)
-    
-    print("INICIALIZACE MODELŮ: HOTOVO")
-
-
-
-    # Evaluace
-    LDA_coherence_score = metric_coherence_gensim(
-        topic_word_distrib=lda_model_sklearn.components_,
-        dtm=document_term_matrix,
-        vocab=terms,
-        texts=documents,
-        measure='c_v',
-        return_mean=True,
-        top_n=10
-    )
-
-
-    LSA_coherence_score = metric_coherence_gensim(
-        topic_word_distrib=lsa_model_sklearn.components_,
-        dtm=document_term_matrix,
-        vocab=terms,
-        texts=documents,
-        measure='c_v',
-        return_mean=True,
-        top_n=10
-    )
-    """

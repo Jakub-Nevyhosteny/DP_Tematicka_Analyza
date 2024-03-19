@@ -177,7 +177,6 @@ if __name__ == '__main__':
 
     alpha, beta, lda_coh_score = calc_alpha_beta_coherence_score()
     print("NALEZENÍ OPTIMÁLNÍCH HODNOT PARAMETRŮ ALPHA A BETA: HOTOVO")
-    # {'alpha': 0.1, 'beta': 0.9, 'Coherence score:': 0.6238990059046069}
 
 
     # Výsledky
@@ -211,23 +210,3 @@ if __name__ == '__main__':
 
     except Exception as e:
         print(e)
-
-
-    """
-    # Inicializace Gensim LDA a LSI modelu
-    gensim_lda_model = LdaModel(corpus=corpus, num_topics=num_topics_LDA, id2word=id2word, alpha=alpha, eta=beta)
-    gensim_lsi_model = LsiModel(corpus=corpus, num_topics=num_topics_LSI, id2word=id2word)
-    print("INICIALIZACE MODELŮ: HOTOVO")
-
-
-    # Evaluace
-    coherence_lda_model_gensim = CoherenceModel(model=gensim_lda_model, texts=documents, dictionary=id2word,
-                                                coherence='c_v')
-    coherence_lsi_model_gensim = CoherenceModel(model=gensim_lsi_model, texts=documents, dictionary=id2word,
-                                                coherence='c_v')
-
-    coherence_lda_gensim = coherence_lda_model_gensim.get_coherence()
-    coherence_lsi_gensim = coherence_lsi_model_gensim.get_coherence()
-    print("Gensim LDA Coherence Score:", coherence_lda_gensim)
-    print("Gensim LSI Coherence Score:", coherence_lsi_gensim)
-    """

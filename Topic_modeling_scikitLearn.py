@@ -229,7 +229,7 @@ if __name__ == '__main__':
         with open(file_name, mode='a', newline='', encoding='UTF-8') as file:
             writer = csv.writer(file)
             writer.writerow(["ScikitLearn LDA", lda_coh_score, lda_num_topics, alpha, beta])
-            writer.writerow(["ScikitLearn LSA", lsa_coh_score, lsa_num_topics])
+            writer.writerow(["ScikitLearn LSA", lsa_coh_score, lsa_num_topics, "", ""])
 
         print("VÝSLEDKY ZAPSÁNY")
 

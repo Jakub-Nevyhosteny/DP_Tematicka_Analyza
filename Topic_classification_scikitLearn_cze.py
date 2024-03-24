@@ -1,4 +1,6 @@
+import csv
 import json
+import os
 import time
 
 import pandas as pd
@@ -141,9 +143,72 @@ text = tfidfconverter.fit_transform(text).toarray()
 print("vectorization: DONE")
 
 
-# TRAINING
 X_train, X_test, y_train, y_test = train_test_split(text, label, test_size=0.25, random_state=0)
 
+# TODO: OTESTOVAT CELÝ TENTO PROCES
+# Modely
+classifiers = {
+    'Rozhodovací strom': DecisionTreeClassifier(),
+    'Logistická regrese': LogisticRegression(),
+    'Naivní Bayesovský klasifikátor': MultinomialNB(),
+    'Metoda podpůrných vektorů': SVC(kernel='linear')
+}
+
+# Uložení výsledků
+results = {
+    'Rozhodovací strom': 0,
+    'Logistická regrese': 0,
+    'Naivní Bayesovský klasifikátor': 0,
+    'Metoda podpůrných vektorů': 0
+}
+
+for name, classifier in classifiers:
+    # INICIALIZACE
+    classifier = classifier
+
+    # TRÉNOVÁNÍ
+    classifier.fit(X_train, y_train)
+
+    # TESTING
+    y_pred = classifier.predict(X_test)
+
+    # TODO: NAJÍT, KDE JE ACCURACY A ULOŽIT DO RESULTS
+
+    # EVALUATION
+    print(classification_report(y_test, y_pred))
+    print(pd.DataFrame(confusion_matrix(y_test, y_pred),
+                       index=[['actual', 'actual'], ['positive', 'negative']],
+                       columns=[['predicted', 'predicted'], ['positive', 'negative']]))
+
+
+# Vypsání výsledků
+    print("VÝSLEDNÉ PŘESNOSTI KLASIFIKÁTORŮ:")
+    for name, result in results.items():
+        print(f"{name}:", result)
+
+
+# Export výsledků
+    column_names = ["Klasifikátor", "Přesnost"]
+    file_name = "Klasifikace_výsledky.csv"
+
+    try:
+        # Pokud soubor neexistuje, vytvoříme ho a zapíšeme hlavičku
+        if not os.path.exists(file_name):
+            with open(file_name, 'w', newline='', encoding='UTF-8') as file:
+                writer = csv.writer(file)
+                writer.writerow(column_names)
+
+        with open(file_name, mode='a', newline='', encoding='UTF-8') as file:
+            writer = csv.writer(file)
+            for name, result in results.items():
+                writer.writerow([f"ScikitLearn {name}", result])
+
+        print("VÝSLEDKY ZAPSÁNY")
+
+    except Exception as e:
+        print(e)
+
+"""
 classifier = RandomForestClassifier(n_estimators=100, random_state=0)
 classifier.fit(X_train, y_train)
 
@@ -157,3 +222,4 @@ print(classification_report(y_test, y_pred))
 print(pd.DataFrame(confusion_matrix(y_test, y_pred),
              index=[['actual', 'actual'], ['positive', 'negative']],
              columns = [['predicted', 'predicted'], ['positive', 'negative']]))
+"""

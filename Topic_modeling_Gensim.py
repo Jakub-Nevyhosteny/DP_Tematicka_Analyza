@@ -204,7 +204,7 @@ if __name__ == '__main__':
         with open(file_name, mode='a', newline='', encoding='UTF-8') as file:
             writer = csv.writer(file)
             writer.writerow(["Gensim LDA", lda_coh_score, num_topics_LDA, alpha, beta])
-            writer.writerow(["Gensim LSI", lsi_coh_score, num_topics_LSI])
+            writer.writerow(["Gensim LSI", lsi_coh_score, num_topics_LSI, "", ""])
 
         print("VÝSLEDKY ZAPSÁNY")
 

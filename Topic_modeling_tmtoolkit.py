@@ -67,6 +67,7 @@ if __name__ == '__main__':
             for i in range(0, 10, 1):
                 top_words_topic.append(top_words_per_topic[i][j])
             top_words.append(top_words_topic)
+        print(top_words)
 
         texts = [[word for word in doc] for doc in documents]
 
@@ -253,7 +254,8 @@ if __name__ == '__main__':
 
         return optimal_num_topics_LDA
 
-    n_topics = calc_topics_coherence_scores()
+    #n_topics = calc_topics_coherence_scores()
+    #print(n_topics)
     print("NALEZENÍ OPTIMÁLNÍHO POČTU TÉMAT: HOTOVO")
 
     def calc_alpha_beta_coherence_scores(min_alpha=0.1, min_beta=0.1, alpha_step=0.1, beta_step=0.1):
@@ -269,7 +271,7 @@ if __name__ == '__main__':
                 }
 
                 lda_params = {
-                    'n_topics': n_topics,   # počet témat
+                    'n_topics': 57,   # počet témat
                     'alpha': a,             # alpha
                     'eta': b,               # beta
                     'n_iter': 100           # počet iterací
@@ -279,7 +281,7 @@ if __name__ == '__main__':
 
                 model = lda_models["main"][0][1]
 
-                LDA_coherence_score = get_Cv(model, poems, n_topics)
+                LDA_coherence_score = get_Cv(model, poems, 57)
 
                 #lda_topic_distributions = [model[1].topic_word_ for model in lda_models]
 
@@ -313,7 +315,7 @@ if __name__ == '__main__':
 
     # Výsledky
     print("LDA MODEL:")
-    print("POČET TÉMAT:", n_topics, "ALFA:", alpha, "BETA:", beta)
+    print("POČET TÉMAT:", 57, "ALFA:", alpha, "BETA:", beta)
     print("VÝSLEDNÉ SKÓRE KOHERENCE:", lda_coh_score)
 
 
@@ -330,7 +332,7 @@ if __name__ == '__main__':
 
         with open(file_name, mode='a', newline='', encoding='UTF-8') as file:
             writer = csv.writer(file)
-            writer.writerow(["Tmtoolkit LDA", lda_coh_score, n_topics, alpha, beta])
+            writer.writerow(["Tmtoolkit LDA", lda_coh_score, 57, alpha, beta])
 
         print("VÝSLEDKY ZAPSÁNY")
 

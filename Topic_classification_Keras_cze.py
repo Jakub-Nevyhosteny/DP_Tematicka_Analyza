@@ -1,4 +1,6 @@
+import csv
 import json
+import os
 import time
 
 import simplemma
@@ -207,7 +209,7 @@ plt.ylabel('Přesnost')
 plt.legend()
 plt.show()
 
-"""
+
 y_pred = model.predict(X_test, verbose=False, batch_size=512)
 y_pred_classes = np.argmax(y_pred, axis=1)
 
@@ -224,4 +226,26 @@ print(pd.DataFrame(confusion_matrix(y_test_labels, y_pred_labels),
                    index=[['actual', 'actual', 'actual'], ['positive', 'negative', 'neutral']],
                    columns=[['predicted', 'predicted', 'predicted'], ['positive', 'negative', 'neutral']]))
 print(accuracy_score(y_test_labels, y_pred_labels))
-"""
+# TODO: KDE JE ACCURACY
+
+# TODO: VYPSÁNÍ VÝSLEDKŮ
+
+# Export výsledků
+column_names = ["Klasifikátor", "Přesnost"]
+file_name = "Klasifikace_výsledky.csv"
+
+try:
+    # Pokud soubor neexistuje, vytvoříme ho a zapíšeme hlavičku
+    if not os.path.exists(file_name):
+        with open(file_name, 'w', newline='', encoding='UTF-8') as file:
+            writer = csv.writer(file)
+            writer.writerow(column_names)
+
+    with open(file_name, mode='a', newline='', encoding='UTF-8') as file:
+        writer = csv.writer(file)
+        writer.writerow([f"Keras Neuronové sítě", ]) # TODO
+
+    print("VÝSLEDKY ZAPSÁNY")
+
+except Exception as e:
+    print(e)

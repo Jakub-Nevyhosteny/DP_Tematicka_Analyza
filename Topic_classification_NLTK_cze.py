@@ -1,6 +1,7 @@
+import csv
 import json
+import os
 import time
-
 import nltk
 import pandas as pd
 import requests
@@ -152,7 +153,7 @@ def simplemmatizace(df):
 df_positive['text'] = simplemmatizace(df_positive['text'])
 df_negative['text'] = simplemmatizace(df_negative['text'])
 df_neutral['text'] = simplemmatizace(df_neutral['text'])
-print("LEMMATIZACE: DONE")
+print("LEMMATIZACE: HOTOVO")
 
 
 # Spojení
@@ -198,49 +199,87 @@ def createFeatureSet(data, word_features):
 
     return feature_set
 
-
 feature_set = createFeatureSet(data, word_features)
-print("VEKTORIZACE: DONE")
+print("VEKTORIZACE: HOTOVO")
 
 
 # Rozdělení na trénovací a testovací množinu
 training, test = train_test_split(feature_set, test_size=0.25, random_state=1)
 
-
+# TODO: OTESTOVAT CELÝ TENTO PROCES
 # Modely
 classifiers = {
 #    'K Nearest Neighbors': KNeighborsClassifier(),#
-    'Decision Tree': DecisionTreeClassifier(),
+    'Rozhodovací strom': DecisionTreeClassifier(),
 #    'Random Forest': RandomForestClassifier(),#
-    'Logistic Regression': LogisticRegression(),
+    'Logistická regrese': LogisticRegression(),
 #    'SGD Classifier': SGDClassifier(max_iter=100),#
-    'Naive Bayes': MultinomialNB(),
-    'Support Vector Classifier': SVC(kernel='linear')
+    'Naivní Bayesovský klasifikátor': MultinomialNB(),
+    'Metoda podpůrných vektorů': SVC(kernel='linear')
 }
 
+# Uložení výsledků
+results = {
+    'Rozhodovací strom': 0,
+    'Logistická regrese': 0,
+    'Naivní Bayesovský klasifikátor': 0,
+    'Metoda podpůrných vektorů': 0
+}
 
-for name, classifier in classifiers:
+for name, classifier in classifiers.items():
     # Trénování
     nltk_model = SklearnClassifier(classifier)
     nltk_model.train(training)
-    print("TRÉNOVÁNÍ: HOTOVO")
 
     accuracy = nltk.classify.accuracy(nltk_model, test)
     print(accuracy)
+    results[name] = accuracy
 
     text_features, labels = zip(*test)
     prediction = nltk_model.classify_many(text_features)
 
     print(classification_report(labels, prediction))
 
+    # TODO: SCREEN !!!
     print(pd.DataFrame(confusion_matrix(labels, prediction),
                        index=[['actual', 'actual', 'actual'], ['positive', 'negative', 'neutral']],
                        columns=[['predicted', 'predicted', 'predicted'], ['positive', 'negative', 'neutral']]))
 
+
+# Vypsání výsledků
+    print("VÝSLEDNÉ PŘESNOSTI KLASIFIKÁTORŮ:")
+    for name, result in results.items():
+        print(f"{name}:", result)
+
+
+# Export výsledků
+    column_names = ["Klasifikátor", "Přesnost"]
+    file_name = "Klasifikace_výsledky.csv"
+
+    try:
+        # Pokud soubor neexistuje, vytvoříme ho a zapíšeme hlavičku
+        if not os.path.exists(file_name):
+            with open(file_name, 'w', newline='', encoding='UTF-8') as file:
+                writer = csv.writer(file)
+                writer.writerow(column_names)
+
+        with open(file_name, mode='a', newline='', encoding='UTF-8') as file:
+            writer = csv.writer(file)
+            for name, result in results.items():
+                writer.writerow([f"NLTK {name}", result])
+
+        print("VÝSLEDKY ZAPSÁNY")
+
+    except Exception as e:
+        print(e)
+
+
+"""
 # Trénování
 nltk_model = SklearnClassifier(MultinomialNB())
 nltk_model.train(training)
 print("TRÉNOVÁNÍ: HOTOVO")
+
 
 # Testování a evaluace
 accuracy = nltk.classify.accuracy(nltk_model, test)
@@ -254,3 +293,4 @@ print(classification_report(labels, prediction))
 print(pd.DataFrame(confusion_matrix(labels, prediction),
                    index=[['actual', 'actual', 'actual'], ['positive', 'negative', 'neutral']],
                    columns=[['predicted', 'predicted', 'predicted'], ['positive', 'negative', 'neutral']]))
+"""

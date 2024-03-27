@@ -154,7 +154,8 @@ y_pred_classes = np.argmax(y_pred, axis=1)
 # Evaluace
 loss, accuracy = model.evaluate(X_test, y_test, verbose=False, batch_size=512)
 print(accuracy)
-# Convert one-hot encoded labels back to single class labels
+
+# Převod one-hot na jednorozměrná pole
 y_test_labels = np.argmax(y_test, axis=1)
 y_pred_labels = np.argmax(y_pred, axis=1)
 

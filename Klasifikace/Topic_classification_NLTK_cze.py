@@ -19,13 +19,13 @@ from sklearn.metrics import classification_report, confusion_matrix
 
 
 # NAČTENÍ DAT
-with open("datasets/csfd/positive.txt", "r", encoding="utf-8") as positive_file:
+with open("../datasets/csfd/positive.txt", "r", encoding="utf-8") as positive_file:
     positive = positive_file.read()
 
-with open("datasets/csfd/negative.txt", "r", encoding="utf-8") as negative_file:
+with open("../datasets/csfd/negative.txt", "r", encoding="utf-8") as negative_file:
     negative = negative_file.read()
 
-with open("datasets/csfd/neutral.txt", "r", encoding="utf-8") as neutral_file:
+with open("../datasets/csfd/neutral.txt", "r", encoding="utf-8") as neutral_file:
     neutral = neutral_file.read()
 
 positive_rows = positive.split('\n')
@@ -61,7 +61,7 @@ print("REGEX: HOTOVO")
 
 
 # Odstranění stop slov
-with open("stopwords-cs.txt", "r", encoding="utf-8") as stop_words_file:
+with open("../stopwords-cs.txt", "r", encoding="utf-8") as stop_words_file:
     stop_words = stop_words_file.read()
 
 df_positive['text'] = df_positive['text'].apply(lambda x: ' '.join(term for term in x.split() if term not in stop_words))
@@ -175,7 +175,6 @@ for name, classifier in classifiers.items():
 
     print(classification_report(labels, prediction))
 
-    # TODO: SCREEN !!!
     print(pd.DataFrame(confusion_matrix(labels, prediction),
                        index=[['actual', 'actual', 'actual'], ['positive', 'negative', 'neutral']],
                        columns=[['predicted', 'predicted', 'predicted'], ['positive', 'negative', 'neutral']]))
@@ -189,7 +188,7 @@ for name, result in results.items():
 
 # Export výsledků
 column_names = ["Klasifikátor", "Přesnost"]
-file_name = "Klasifikace_výsledky.csv"
+file_name = "../Klasifikace_výsledky.csv"
 
 try:
     # Pokud soubor neexistuje, vytvoříme ho a zapíšeme hlavičku
@@ -207,25 +206,3 @@ try:
 
 except Exception as e:
     print(e)
-
-
-"""
-# Trénování
-nltk_model = SklearnClassifier(MultinomialNB())
-nltk_model.train(training)
-print("TRÉNOVÁNÍ: HOTOVO")
-
-
-# Testování a evaluace
-accuracy = nltk.classify.accuracy(nltk_model, test)
-print(accuracy)
-
-text_features, labels = zip(*test)
-prediction = nltk_model.classify_many(text_features)
-
-print(classification_report(labels, prediction))
-
-print(pd.DataFrame(confusion_matrix(labels, prediction),
-                   index=[['actual', 'actual', 'actual'], ['positive', 'negative', 'neutral']],
-                   columns=[['predicted', 'predicted', 'predicted'], ['positive', 'negative', 'neutral']]))
-"""

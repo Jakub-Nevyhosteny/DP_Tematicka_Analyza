@@ -16,11 +16,11 @@ from keras.callbacks import EarlyStopping
 
 
 # Načtení dat
-with open("datasets/csfd/positive.txt", "r", encoding="utf-8") as positive_file:
+with open("../datasets/csfd/positive.txt", "r", encoding="utf-8") as positive_file:
     positive = positive_file.read()
-with open("datasets/csfd/negative.txt", "r", encoding="utf-8") as negative_file:
+with open("../datasets/csfd/negative.txt", "r", encoding="utf-8") as negative_file:
     negative = negative_file.read()
-with open("datasets/csfd/neutral.txt", "r", encoding="utf-8") as neutral_file:
+with open("../datasets/csfd/neutral.txt", "r", encoding="utf-8") as neutral_file:
     neutral = neutral_file.read()
 
 positive_rows = positive.split('\n')
@@ -56,7 +56,7 @@ print("REGEX: HOTOVO")
 
 
 # Odstranění stop slov
-with open("stopwords-cs.txt", "r", encoding="utf-8") as stop_words_file:
+with open("../stopwords-cs.txt", "r", encoding="utf-8") as stop_words_file:
     stop_words = stop_words_file.read()
 df_positive['text'] = df_positive['text'].apply(lambda x: ' '.join(term for term in x.split() if term not in stop_words))
 df_negative['text'] = df_negative['text'].apply(lambda x: ' '.join(term for term in x.split() if term not in stop_words))
@@ -174,7 +174,7 @@ print(accuracy)
 
 # Export výsledků
 column_names = ["Klasifikátor", "Přesnost"]
-file_name = "Klasifikace_výsledky.csv"
+file_name = "../Klasifikace_výsledky.csv"
 
 try:
     # Pokud soubor neexistuje, vytvoříme ho a zapíšeme hlavičku

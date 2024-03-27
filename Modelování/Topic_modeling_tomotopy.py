@@ -6,10 +6,10 @@ import tomotopy as tp
 
 
 def poemsExtraction():
-    with open("stopwords-cs.txt", "r", encoding="utf-8") as stop_words_file:
+    with open("../stopwords-cs.txt", "r", encoding="utf-8") as stop_words_file:
         stop_words = stop_words_file.read()
 
-    corpus_folder_path = "datasets/corpusCzechVerse-master/ccv"
+    corpus_folder_path = "../datasets/corpusCzechVerse-master/ccv"
     corpus_files = os.listdir(corpus_folder_path)
 
     poems = []
@@ -88,7 +88,7 @@ print()
 
 # Export výsledků
 column_names = ["Model", "Skóre koherence", "Počet témat", "Alfa", "Beta"]
-file_name = "Modelování_výsledky.csv"
+file_name = "../Modelování_výsledky.csv"
 
 try:
     # Pokud soubor neexistuje, vytvoříme ho a zapíšeme hlavičku

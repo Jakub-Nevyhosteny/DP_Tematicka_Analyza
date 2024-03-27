@@ -13,13 +13,13 @@ from sklearn.tree import DecisionTreeClassifier
 
 
 # NAČTENÍ DAT
-with open("datasets/csfd/positive.txt", "r", encoding="utf-8") as positive_file:
+with open("../datasets/csfd/positive.txt", "r", encoding="utf-8") as positive_file:
     positive = positive_file.read()
 
-with open("datasets/csfd/negative.txt", "r", encoding="utf-8") as negative_file:
+with open("../datasets/csfd/negative.txt", "r", encoding="utf-8") as negative_file:
     negative = negative_file.read()
 
-with open("datasets/csfd/neutral.txt", "r", encoding="utf-8") as neutral_file:
+with open("../datasets/csfd/neutral.txt", "r", encoding="utf-8") as neutral_file:
     neutral = neutral_file.read()
 
 positive_rows = positive.split('\n')
@@ -83,7 +83,7 @@ enc = LabelEncoder()
 label = enc.fit_transform(csfd_reviews['label'])
 text = csfd_reviews['text'].to_list() # Protože vectorizer chce list jako input
 
-with open("stopwords-cs.txt", "r", encoding="utf-8") as stop_words_file:
+with open("../stopwords-cs.txt", "r", encoding="utf-8") as stop_words_file:
     stop_slova = list(stop_words_file.read())
 
 # BOW & Odstranění stop slov & lowercase
@@ -145,7 +145,7 @@ for name, result in results.items():
 
 # Export výsledků
 column_names = ["Klasifikátor", "Přesnost"]
-file_name = "Klasifikace_výsledky.csv"
+file_name = "../Klasifikace_výsledky.csv"
 
 try:
     # Pokud soubor neexistuje, vytvoříme ho a zapíšeme hlavičku
@@ -163,19 +163,3 @@ try:
 
 except Exception as e:
     print(e)
-
-"""
-classifier = RandomForestClassifier(n_estimators=100, random_state=0)
-classifier.fit(X_train, y_train)
-
-
-# TESTING
-y_pred = classifier.predict(X_test)
-
-
-# EVALUATION
-print(classification_report(y_test, y_pred))
-print(pd.DataFrame(confusion_matrix(y_test, y_pred),
-             index=[['actual', 'actual'], ['positive', 'negative']],
-             columns = [['predicted', 'predicted'], ['positive', 'negative']]))
-"""

@@ -48,7 +48,7 @@ if __name__ == '__main__':
 
 
     # Evaluace
-    # Zdroj: https://stackoverflow.com/questions/60613532/how-do-i-calculate-the-coherence-score-of-an-sklearn-lda-model
+    # Upraveno dle: https://stackoverflow.com/questions/60613532/how-do-i-calculate-the-coherence-score-of-an-sklearn-lda-model
     def get_Cv(model, documents):
         topics = model.components_
 

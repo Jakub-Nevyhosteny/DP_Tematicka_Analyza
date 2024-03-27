@@ -1,0 +1,9 @@
+Klasifikátor,Přesnost
+NLTK Rozhodovací strom,0.5815897750153199
+NLTK Logistická regrese,0.736058828678981
+NLTK Naivní Bayesovský klasifikátor,0.7273045609734746
+NLTK Metoda podpůrných vektorů,0.7328197496279436
+Keras Neuronové sítě,0.7423181533813477
+ScikitLearn Logistická regrese,0.748227260789635
+ScikitLearn Naivní Bayesovský klasifikátor,0.7393854504070735
+ScikitLearn Metoda podpůrných vektorů,0.7533922787358838

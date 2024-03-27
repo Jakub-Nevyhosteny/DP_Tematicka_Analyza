@@ -1,24 +1,26 @@
 import csv
-import json
 import os
-import time
-
 import pandas as pd
-import requests
 import simplemma
-import stanza
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import MultinomialNB
 from sklearn.preprocessing import LabelEncoder
+from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
 
 
-# PŘÍPRAVA DAT
+# NAČTENÍ DAT
 with open("datasets/csfd/positive.txt", "r", encoding="utf-8") as positive_file:
     positive = positive_file.read()
+
 with open("datasets/csfd/negative.txt", "r", encoding="utf-8") as negative_file:
     negative = negative_file.read()
+
+with open("datasets/csfd/neutral.txt", "r", encoding="utf-8") as neutral_file:
+    neutral = neutral_file.read()
 
 positive_rows = positive.split('\n')
 df_positive = pd.DataFrame({'label': 'positive', 'text': positive_rows})
@@ -26,41 +28,12 @@ df_positive = pd.DataFrame({'label': 'positive', 'text': positive_rows})
 negative_rows = negative.split('\n')
 df_negative = pd.DataFrame({'label': 'negative', 'text': negative_rows})
 
-
-def korektorAPI(text, labelName):
-    url = "http://lindat.mff.cuni.cz/services/korektor/api/correct?data="
-    corrected_lines = []
-    failed_lines = []
-
-    for row in text:
-        response = requests.get(url + row)
-        if response.status_code == 200:
-            corrected_lines.append(json.loads(response.text).get("result"))
-        else:
-            print("Nepodařilo se načíst webovou stránku. Stavový kód:", response.status_code)
-            failed_lines.append(json.loads(response.text).get("result"))
-            print(row)
-
-        # Spuštění časovače po každých 100 odeslaných požadavcích
-        if len(corrected_lines) % 100 == 0:
-            print("PAUSE")
-            time.sleep(30) # Časovač na 30 vteřin
-
-    # Znovuodeslání chybných požadavků
-    if len(failed_lines) > 0:
-        for line in failed_lines:
-            corrected_lines.append(json.loads(line.text).get("result"))
-            if len(corrected_lines) % 100 == 0:
-                print("PAUSE")
-                time.sleep(30)
-
-    df_corrected = pd.DataFrame({'label': [labelName] * len(corrected_lines), 'text': corrected_lines})
-    print(df_corrected)
-    return df_corrected
-
-print("correcting: DONE")
+neutral_rows = neutral.split('\n')
+df_neutral = pd.DataFrame({'label': 'neutral', 'text': neutral_rows})
+print("NAČTENÍ DAT: HOTOVO")
 
 
+# Regex
 def regexPreprocessing(df_column):
     # Odstranění emailových dadres
     df_column = df_column.str.replace(r'^.+@[^\.].*\.[a-z]{2,}$', '', regex=True)
@@ -75,33 +48,13 @@ def regexPreprocessing(df_column):
 
     return df_column
 
-#csfd_reviews['text'] = regexPreprocessing(csfd_reviews['text'])
 df_positive['text'] = regexPreprocessing(df_positive['text'])
 df_negative['text'] = regexPreprocessing(df_negative['text'])
-print("regex preprocessing: DONE")
-
-# Lemma (vytvořil jsem já - možná popsat v DP)
-
-def stanza_lemma(dataframe):
-    nlp = stanza.Pipeline('cs', processors='tokenize,mwt,pos,lemma')
-    df_list = dataframe.tolist()
-    lemmatized_texts = []
-
-    for sentence in df_list:
-        doc = nlp(sentence)
-        lemmatized_words = []
-
-        for sentence in doc.sentences:
-            for word in sentence.words:
-                lemmatized_words.append(word.lemma)
-            lemmatized_texts.append(' '.join(lemmatized_words))
-
-    lemma_df = pd.DataFrame(lemmatized_texts)
-    return lemma_df[0]
-
-#csfd_reviews['text'] = stanza_lemma(csfd_reviews['text'])
+df_neutral['text'] = regexPreprocessing(df_neutral['text'])
+print("REGEX: HOTOVO")
 
 
+# Lemmatizace
 def simplemmatizace(df):
     df_list = df.tolist()
     lemmaSent = []
@@ -114,99 +67,102 @@ def simplemmatizace(df):
     lemma_df = pd.DataFrame(lemmaSent)
     return lemma_df[0]
 
-#csfd_reviews['text'] = simplemmatizace(csfd_reviews['text'])
 df_positive['text'] = simplemmatizace(df_positive['text'])
 df_negative['text'] = simplemmatizace(df_negative['text'])
-print("lemmatization: DONE")
+df_neutral['text'] = simplemmatizace(df_neutral['text'])
+print("LEMMATIZACE: HOTOVO")
 
 
-csfd_reviews = pd.concat([df_positive, df_negative])
-csfd_reviews = csfd_reviews.sample(frac=1, random_state=42)  # frac=1 shuffles all rows, random_state=42 for reproducibility
+csfd_reviews = pd.concat([df_positive, df_negative, df_neutral])
+csfd_reviews = csfd_reviews.sample(frac=1, random_state=42)  # frac=1 zamíchá všechny řádky
+print("SPOJENÍ: HOTOVO")
 
 
-# Feature Extraction
+# Extrakce příznaků
 enc = LabelEncoder()
-label = enc.fit_transform(csfd_reviews['label']) # Transforming "spam" to 1 and "ham" to 0
-text = csfd_reviews['text'].to_list() # Because vectorizer wnats to get list as an input
+label = enc.fit_transform(csfd_reviews['label'])
+text = csfd_reviews['text'].to_list() # Protože vectorizer chce list jako input
 
 with open("stopwords-cs.txt", "r", encoding="utf-8") as stop_words_file:
     stop_slova = list(stop_words_file.read())
 
-# BOW
+# BOW & Odstranění stop slov & lowercase
 vectorizer = CountVectorizer(max_features=1500, min_df=5, max_df=0.7, stop_words=stop_slova, lowercase=True)
 text = vectorizer.fit_transform(text).toarray()
 
 # TF-IDF
 tfidfconverter = TfidfTransformer()
 text = tfidfconverter.fit_transform(text).toarray()
+print("VEKTORIZACE: HOTOVO")
 
-print("vectorization: DONE")
 
-
+# Rozdělení dat
 X_train, X_test, y_train, y_test = train_test_split(text, label, test_size=0.25, random_state=0)
 
-# TODO: OTESTOVAT CELÝ TENTO PROCES
+
 # Modely
 classifiers = {
-    'Rozhodovací strom': DecisionTreeClassifier(),
-    'Logistická regrese': LogisticRegression(),
+    #'Rozhodovací strom': DecisionTreeClassifier(), # V závislosti na výkonnosti stroje TODO: Napsat do DP do výsledků
+    'Logistická regrese': LogisticRegression(max_iter=1000), # Možná bude nutné upravit parametr podle velikosti dat
     'Naivní Bayesovský klasifikátor': MultinomialNB(),
-    'Metoda podpůrných vektorů': SVC(kernel='linear')
+    'Metoda podpůrných vektorů': SVC()
 }
 
 # Uložení výsledků
 results = {
-    'Rozhodovací strom': 0,
+    #'Rozhodovací strom': 0,
     'Logistická regrese': 0,
     'Naivní Bayesovský klasifikátor': 0,
     'Metoda podpůrných vektorů': 0
 }
 
-for name, classifier in classifiers:
-    # INICIALIZACE
+for name, classifier in classifiers.items():
+    # Inicializace
     classifier = classifier
 
-    # TRÉNOVÁNÍ
+    # Trénování
     classifier.fit(X_train, y_train)
 
-    # TESTING
+    # Testování
     y_pred = classifier.predict(X_test)
 
-    # TODO: NAJÍT, KDE JE ACCURACY A ULOŽIT DO RESULTS
+    # Evaluace
+    results[name] = accuracy_score(y_test, y_pred)
+    print(name)
+    print(accuracy_score(y_test, y_pred))
 
-    # EVALUATION
     print(classification_report(y_test, y_pred))
     print(pd.DataFrame(confusion_matrix(y_test, y_pred),
-                       index=[['actual', 'actual'], ['positive', 'negative']],
-                       columns=[['predicted', 'predicted'], ['positive', 'negative']]))
+                       index=[['actual', 'actual', 'actual'], ['positive', 'negative', 'neutral']],
+                       columns=[['predicted', 'predicted', 'predicted'], ['positive', 'negative', 'neutral']]))
 
 
 # Vypsání výsledků
-    print("VÝSLEDNÉ PŘESNOSTI KLASIFIKÁTORŮ:")
-    for name, result in results.items():
-        print(f"{name}:", result)
+print("VÝSLEDNÉ PŘESNOSTI KLASIFIKÁTORŮ:")
+for name, result in results.items():
+    print(f"{name}:", result)
 
 
 # Export výsledků
-    column_names = ["Klasifikátor", "Přesnost"]
-    file_name = "Klasifikace_výsledky.csv"
+column_names = ["Klasifikátor", "Přesnost"]
+file_name = "Klasifikace_výsledky.csv"
 
-    try:
-        # Pokud soubor neexistuje, vytvoříme ho a zapíšeme hlavičku
-        if not os.path.exists(file_name):
-            with open(file_name, 'w', newline='', encoding='UTF-8') as file:
-                writer = csv.writer(file)
-                writer.writerow(column_names)
-
-        with open(file_name, mode='a', newline='', encoding='UTF-8') as file:
+try:
+    # Pokud soubor neexistuje, vytvoříme ho a zapíšeme hlavičku
+    if not os.path.exists(file_name):
+        with open(file_name, 'w', newline='', encoding='UTF-8') as file:
             writer = csv.writer(file)
-            for name, result in results.items():
-                writer.writerow([f"ScikitLearn {name}", result])
+            writer.writerow(column_names)
 
-        print("VÝSLEDKY ZAPSÁNY")
+    with open(file_name, mode='a', newline='', encoding='UTF-8') as file:
+        writer = csv.writer(file)
+        for name, result in results.items():
+            writer.writerow([f"ScikitLearn {name}", result])
 
-    except Exception as e:
-        print(e)
+    print("VÝSLEDKY ZAPSÁNY")
+
+except Exception as e:
+    print(e)
 
 """
 classifier = RandomForestClassifier(n_estimators=100, random_state=0)

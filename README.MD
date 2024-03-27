@@ -7,6 +7,8 @@ Repozitář obsahuje 2 složky:
 
 a 2 CSV soubory s výsledky, kterých dosáhl autor v rámci práce.
 
+Testováno na verzi Pythonu 3.10 (Keras na 3.8)
+
 ### Klasifikace
 Každý klasifikační soubor obsahuje metody pro provedení předpzracování textů, které jsou napsány speciálně pro datasety
 uvedené níže. Při použití jiných zdrojových dat je vhodné metody upravit. Stejně tak je nutné upravit cestu ke zdrojovým

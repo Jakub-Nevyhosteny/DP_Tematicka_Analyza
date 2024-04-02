@@ -25,7 +25,7 @@ datovým souborům. Pro strojové učení jsou použity klasifikátory:
 
 ### Modelování
 V modelovacích souborech je v rámci předpřípravy textu použito pouze odstranění stop slov, neboť byla využita
-již předpřipřavená textová data. Při použití jiných zdrojových dat je vhodné optimální metody předpřípravy do kódu
+již předzpracovaná textová data. Při použití jiných zdrojových dat je vhodné optimální metody předpřípravy do kódu
 přídat. Stejně tak je nutné upravit cestu ke zdrojovým datovým souborům. Jsou použity implementace modelů:
 - Latent Semantic Analysis, někdy Latent Semantic Indexing (Gensim, Sklearn),
 - Latent Dirichlet Allocation (Gensim, SKlearn, Tomotopy).

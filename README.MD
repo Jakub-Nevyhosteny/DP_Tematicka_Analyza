@@ -36,5 +36,6 @@ přídat. Stejně tak je nutné upravit cestu ke zdrojovým datovým souborům. 
 - Tomotopy: https://bab2min.github.io/tomotopy.
 
 ### Data
+Zdrojová data nejsou součástí repozitáře, neboť jsou příliš velká. Je tedy nutné si je stáhnout:
 - Zdrojová data použita pro klasifikaci jsou dostupná zde: https://corpora.kiv.zcu.cz/sentiment,
 - Zdrojová data použita pro modelování jsou dostupná zde: https://github.com/versotym/corpusCzechVerse.
